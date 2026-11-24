@@ -1,0 +1,337 @@
+{
+  "name": "LobeHub 2.3 AI Chat Workspace (Postgres, Redis, SearXNG, S3)",
+  "idSeed": "LobeHub 2.3 AI Chat Workspace (Postgres, Redis, SearXNG, S3)",
+  "description": "Multi-model AI chat with private login, knowledge base, web search, files.",
+  "category": "AI/ML",
+  "tags": [
+    "lobehub",
+    "lobechat",
+    "ai-chat",
+    "chatgpt-alternative",
+    "llm",
+    "rag",
+    "postgres",
+    "self-hosted"
+  ],
+  "image": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/lobe-chat.svg",
+  "upstream": {
+    "repo": "lobehub/lobehub",
+    "version": "2.3.5",
+    "license": "LobeHub Community License (Apache-2.0 plus conditions; unmodified use as a service allowed)",
+    "images": {
+      "lobehub": "lobehub/lobehub:2.3.5@sha256:b34dd5a2c130a615d979102e2498fe9532f35f2d22018b48c38879bc0dd6b570 (released 2026-11-22)",
+      "postgres": "paradedb/paradedb:0.27.0-pg17@sha256:8fb8cafe24cd8eb59a9a3daea5a14d7e4d92219734c829351d094368cc693319 (2026-11-19)",
+      "redis": "redis:8.2.11@sha256:b0b01167ff47bc3868e56a967895a26be4230891a1f42a78ab61cdd227accc8d",
+      "searxng": "searxng/searxng:2026.11.20-1ebea4a07@sha256:8140a62838a141721e5031070e2e1a2edd4b91f1730e285716da197d76a40182"
+    },
+    "checked": "2026-11-24"
+  },
+  "services": {
+    "LobeHub": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/lobe-chat.svg",
+      "source": {
+        "repo": "baranberkay96/lobehub-railway",
+        "rootDirectory": "/services/lobehub"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/api/version",
+      "healthcheckTimeout": 1200,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": true,
+      "targetPort": 3210,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "PORT": {
+          "defaultValue": "3210",
+          "description": "Port LobeHub listens on.",
+          "required": false
+        },
+        "APP_URL": {
+          "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+          "description": "Public URL of LobeHub. Change it when you add a custom domain.",
+          "required": false
+        },
+        "LOBEHUB_ADMIN_EMAIL": {
+          "defaultValue": "",
+          "description": "Owner e-mail. The owner account is created on the first start; only this address (plus AUTH_ALLOWED_EMAILS) may sign up.",
+          "required": true
+        },
+        "LOBEHUB_ADMIN_PASSWORD": {
+          "defaultValue": "${{secret(24, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Owner password (8-64 characters). Changing it resets the owner password on the next start.",
+          "required": false
+        },
+        "AUTH_ALLOWED_EMAILS": {
+          "defaultValue": "",
+          "description": "Extra e-mails or domains allowed to sign up, comma-separated (e.g. teammate@example.com,example.com). The owner e-mail is always allowed.",
+          "required": false
+        },
+        "AUTH_SECRET": {
+          "defaultValue": "${{secret(43, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Better Auth session secret. Changing it logs everyone out.",
+          "required": false
+        },
+        "KEY_VAULTS_SECRET": {
+          "defaultValue": "${{secret(43, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Encrypts the API keys users store in LobeHub. Never change it after the first start.",
+          "required": false
+        },
+        "DATABASE_URL": {
+          "defaultValue": "postgresql://${{Postgres.POSTGRES_USER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.POSTGRES_DB}}",
+          "description": "ParadeDB/Postgres connection (private network).",
+          "required": false
+        },
+        "REDIS_URL": {
+          "defaultValue": "${{Redis.REDIS_URL}}",
+          "description": "Redis for caches and rate limits.",
+          "required": false
+        },
+        "REDIS_PREFIX": {
+          "defaultValue": "lobechat",
+          "description": "Key prefix in Redis.",
+          "required": false
+        },
+        "REDIS_TLS": {
+          "defaultValue": "0",
+          "description": "Plain Redis on the private network.",
+          "required": false
+        },
+        "S3_ENDPOINT": {
+          "defaultValue": "${{Bucket.ENDPOINT}}",
+          "description": "Railway Bucket endpoint (files, images, knowledge base).",
+          "required": false
+        },
+        "S3_BUCKET": {
+          "defaultValue": "${{Bucket.BUCKET}}",
+          "description": "Railway Bucket name.",
+          "required": false
+        },
+        "S3_REGION": {
+          "defaultValue": "${{Bucket.REGION}}",
+          "description": "Bucket region.",
+          "required": false
+        },
+        "S3_ACCESS_KEY_ID": {
+          "defaultValue": "${{Bucket.ACCESS_KEY_ID}}",
+          "description": "Bucket access key.",
+          "required": false
+        },
+        "S3_SECRET_ACCESS_KEY": {
+          "defaultValue": "${{Bucket.SECRET_ACCESS_KEY}}",
+          "description": "Bucket secret key.",
+          "required": false
+        },
+        "S3_ENABLE_PATH_STYLE": {
+          "defaultValue": "0",
+          "description": "Railway Buckets use virtual-hosted-style URLs.",
+          "required": false
+        },
+        "S3_SET_ACL": {
+          "defaultValue": "0",
+          "description": "The Bucket stays private; files are served through presigned URLs.",
+          "required": false
+        },
+        "LLM_VISION_IMAGE_USE_BASE64": {
+          "defaultValue": "1",
+          "description": "Send images to models inline (the Bucket is private).",
+          "required": false
+        },
+        "SEARXNG_URL": {
+          "defaultValue": "http://${{SearXNG.RAILWAY_PRIVATE_DOMAIN}}:8080",
+          "description": "Private SearXNG used by the web-search tool.",
+          "required": false
+        },
+        "OPENAI_API_KEY": {
+          "defaultValue": "",
+          "description": "Optional. Server-wide OpenAI key; users can also add their own keys in Settings.",
+          "required": false
+        },
+        "ANTHROPIC_API_KEY": {
+          "defaultValue": "",
+          "description": "Optional. Server-wide Anthropic key.",
+          "required": false
+        },
+        "GOOGLE_API_KEY": {
+          "defaultValue": "",
+          "description": "Optional. Server-wide Google Gemini key.",
+          "required": false
+        },
+        "OPENROUTER_API_KEY": {
+          "defaultValue": "",
+          "description": "Optional. Server-wide OpenRouter key.",
+          "required": false
+        }
+      }
+    },
+    "Postgres": {
+      "icon": "https://devicons.railway.app/i/postgresql.svg",
+      "source": {
+        "image": "paradedb/paradedb:0.27.0-pg17@sha256:8fb8cafe24cd8eb59a9a3daea5a14d7e4d92219734c829351d094368cc693319"
+      },
+      "startCommand": "/bin/sh -c \"unset PGPORT; exec docker-entrypoint.sh postgres -c listen_addresses='*' -c shared_preload_libraries=pg_search,pg_cron,pg_stat_statements\"",
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/var/lib/postgresql/data"
+      },
+      "variables": {
+        "PGDATA": {
+          "defaultValue": "/var/lib/postgresql/data/pgdata",
+          "description": "Data directory inside the volume.",
+          "required": false
+        },
+        "POSTGRES_USER": {
+          "defaultValue": "postgres",
+          "description": "Database superuser.",
+          "required": false
+        },
+        "POSTGRES_PASSWORD": {
+          "defaultValue": "${{secret(32, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Database password.",
+          "required": false
+        },
+        "POSTGRES_DB": {
+          "defaultValue": "lobechat",
+          "description": "Database LobeHub uses.",
+          "required": false
+        },
+        "PGHOST": {
+          "defaultValue": "${{RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Private hostname (for the Railway data panel).",
+          "required": false
+        },
+        "PGUSER": {
+          "defaultValue": "${{POSTGRES_USER}}",
+          "description": "For the Railway data panel.",
+          "required": false
+        },
+        "PGPASSWORD": {
+          "defaultValue": "${{POSTGRES_PASSWORD}}",
+          "description": "For the Railway data panel.",
+          "required": false
+        },
+        "PGDATABASE": {
+          "defaultValue": "${{POSTGRES_DB}}",
+          "description": "For the Railway data panel.",
+          "required": false
+        },
+        "DATABASE_URL": {
+          "defaultValue": "postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:5432/${{POSTGRES_DB}}",
+          "description": "Private connection URL.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "60",
+          "description": "Lets Postgres shut down cleanly.",
+          "required": false
+        }
+      }
+    },
+    "Redis": {
+      "icon": "https://cdn.sanity.io/images/sy1jschh/production/0ce0bfdcfbdbf69662b1116671f97c2dd788b655-157x157.svg",
+      "source": {
+        "image": "redis:8.2.11@sha256:b0b01167ff47bc3868e56a967895a26be4230891a1f42a78ab61cdd227accc8d"
+      },
+      "startCommand": "/bin/sh -c \"rm -rf $RAILWAY_VOLUME_MOUNT_PATH/lost+found/ && exec docker-entrypoint.sh redis-server --requirepass $REDIS_PASSWORD --save 60 1 --dir $RAILWAY_VOLUME_MOUNT_PATH\"",
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ON_FAILURE",
+      "restartPolicyMaxRetries": 10,
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/data"
+      },
+      "variables": {
+        "REDISHOST": {
+          "defaultValue": "${{RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Private network hostname of the Redis service.",
+          "required": false
+        },
+        "REDISPORT": {
+          "defaultValue": "6379",
+          "description": "Port that Redis listens on.",
+          "required": false
+        },
+        "REDISUSER": {
+          "defaultValue": "default",
+          "description": "Username for authenticating with Redis.",
+          "required": false
+        },
+        "REDIS_PASSWORD": {
+          "defaultValue": "${{ secret(32, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\") }}",
+          "description": "Randomly generated password for authenticating with Redis.",
+          "required": false
+        },
+        "REDISPASSWORD": {
+          "defaultValue": "${{REDIS_PASSWORD}}",
+          "description": "Alias of REDIS_PASSWORD.",
+          "required": false
+        },
+        "REDIS_URL": {
+          "defaultValue": "redis://${{ REDISUSER }}:${{ REDIS_PASSWORD }}@${{ REDISHOST }}:${{ REDISPORT }}",
+          "description": "Private connection URL used by LobeHub (cache, rate limits, presigned URL cache).",
+          "required": false
+        }
+      }
+    },
+    "SearXNG": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/searxng.svg",
+      "source": {
+        "repo": "baranberkay96/lobehub-railway",
+        "rootDirectory": "/services/searxng"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/healthz",
+      "healthcheckTimeout": 300,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "PORT": {
+          "defaultValue": "8080",
+          "description": "SearXNG port (private only).",
+          "required": false
+        },
+        "GRANIAN_HOST": {
+          "defaultValue": "::",
+          "description": "Listen on IPv4 and IPv6 (private network).",
+          "required": false
+        },
+        "SEARXNG_SECRET": {
+          "defaultValue": "${{secret(48, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "SearXNG server secret.",
+          "required": false
+        },
+        "SEARXNG_BASE_URL": {
+          "defaultValue": "http://${{RAILWAY_PRIVATE_DOMAIN}}:8080/",
+          "description": "Internal base URL (instance is private-only).",
+          "required": false
+        }
+      }
+    }
+  },
+  "buckets": [
+    "Bucket"
+  ]
+}
