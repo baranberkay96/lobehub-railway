@@ -297,11 +297,13 @@ async function bootstrapOwner(client) {
   if (!email) return;
   let password = env.LOBEHUB_ADMIN_PASSWORD || "";
   const valid = password.length >= 8 && password.length <= 64;
-  if (!valid) {
-    warn("LOBEHUB_ADMIN_PASSWORD must be 8-64 characters. The owner login stays locked with a random password nobody knows; set a valid LOBEHUB_ADMIN_PASSWORD and redeploy to unlock it.");
-  }
   const fingerprint = valid ? hmac(env.AUTH_SECRET, `owner-password:${email}:${password}`).toString("hex") : "";
   const found = await client.query("select id from users where lower(email) = $1 limit 1", [email]);
+  if (!valid) {
+    warn(found.rows.length
+      ? "LOBEHUB_ADMIN_PASSWORD must be 8-64 characters; it was ignored and the owner keeps the current password."
+      : "LOBEHUB_ADMIN_PASSWORD must be 8-64 characters. The owner login stays locked with a random password nobody knows; set a valid LOBEHUB_ADMIN_PASSWORD and redeploy to unlock it.");
+  }
   if (found.rows.length === 0) {
     if (!valid) password = crypto.randomBytes(24).toString("base64url");
     await createOwner(email, password);
