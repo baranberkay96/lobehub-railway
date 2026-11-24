@@ -43,7 +43,16 @@ Not included: upstream's optional Agent Gateway (`lobehub-gateway`, no licence f
 
 ## Resources
 
-See "Measured" below. Prices: RAM $10/GB-month, vCPU $20/month, volume $0.15/GB-month. Minimum plan: Hobby recommended (LobeHub alone is close to Trial's 1 GB under load).
+Measured on Railway 2026-11-24 (idle after login, upload and a web search; LobeHub also re-run under a 1 GB limit):
+
+| Service | RAM | CPU |
+|---|---|---|
+| LobeHub | 0.61-0.69 GB (fits a 1 GB limit) | ~0.01 vCPU idle |
+| Postgres (ParadeDB) | 0.18-0.21 GB | ~0 |
+| SearXNG | 0.14-0.18 GB | ~0 |
+| Redis | 0.05 GB | ~0 |
+
+Total ≈ 1.0-1.1 GB idle ≈ **$10-13/month** plus volumes. Prices: RAM $10/GB-month, vCPU $20/month, volume $0.15/GB-month. Minimum plan: Hobby recommended; each service fits Trial's 1 GB per service at idle, but LobeHub has little headroom there.
 
 ## Verification checklist
 
@@ -53,7 +62,9 @@ See "Measured" below. Prices: RAM $10/GB-month, vCPU $20/month, volume $0.15/GB-
 4. File upload: presigned PUT to the Bucket 200 (CORS preflight OK), file listed.
 5. SearXNG JSON search answers on the private network.
 6. Redeploy: owner unchanged; change `LOBEHUB_ADMIN_PASSWORD` → new password works.
-7. Odd values (`LOBEHUB_ADMIN_PASSWORD=abc`, `APP_URL=nonsense`, bad e-mail) → SUCCESS with warnings, login locked.
+7. Odd values (`LOBEHUB_ADMIN_PASSWORD=abc`, `APP_URL=nonsense`) → SUCCESS with warnings; owner keeps the previous password.
+
+Tested 2026-11-24 on Railway: 1, 2 (stranger sign-up 403 `EMAIL_NOT_ALLOWED`, wrong password 401, owner 200), 4 (tRPC `upload.createS3PreSignedUrl` 200, CORS preflight 200 with the app origin, PUT 200), 5 (`tools/search.query` through LobeHub → 20 SearXNG results), 6 (password change re-applied via scrypt, sign-in 200), 7. Not tested: a chat completion (no model key in tests). `/api/version` of the 2.3.5 image reports `2.3.4` (upstream package.json).
 
 ## Open questions
 

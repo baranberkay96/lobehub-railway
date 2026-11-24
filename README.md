@@ -64,7 +64,7 @@ Login uses LobeHub's built-in Better Auth. This template never starts with open 
 
 **Versions.** The LobeHub image is pinned in `services/lobehub/Dockerfile` (`LOBEHUB_IMAGE`, tag and digest). To upgrade, use a newer release tag and digest, back up Postgres, and redeploy; migrations run on start.
 
-**Resources.** Plan for about 0.6-0.9 GB RAM in total at idle (LobeHub is the largest service). Hobby or Pro is recommended; see the measured numbers in TEMPLATE.md.
+**Resources.** Measured idle: LobeHub about 0.65 GB RAM, ParadeDB 0.2 GB, SearXNG 0.15 GB, Redis 0.05 GB, so about 1.1 GB in total (roughly $10-13 per month). Hobby or Pro is recommended.
 
 **Licence.** LobeHub uses the LobeHub Community License (Apache 2.0 with conditions): running the unmodified app, also commercially, is allowed; distributing a modified derivative needs a commercial licence from LobeHub. This community template runs the official image unchanged.
 
