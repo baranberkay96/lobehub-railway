@@ -1,5 +1,7 @@
 # Deploy and Host LobeHub with Railway
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/lobehub-23-ai-chat-workspace-postgres-re?referralCode=20H68q)
+
 LobeHub (formerly LobeChat) is an open-source AI chat workspace: one interface for OpenAI, Anthropic, Gemini, OpenRouter, Ollama and dozens of other model providers, with agents, a knowledge base, file chat, plugins and web search. This template runs LobeHub 2.3 with its full server stack and a private login.
 
 ## About Hosting LobeHub
